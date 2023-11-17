@@ -5,7 +5,7 @@
 /// <reference types="@sveltejs/kit" />
 
 /**
- * Environment variables [loaded by Vite](https://vitejs.dev/guide/env-and-mode.html#env-files) from `.env` files and `process.env`. Like [`$env/dynamic/private`](https://kit.svelte.dev/docs/modules#$env-dynamic-private), this module cannot be imported into client-side code. This module only includes variables that _do not_ begin with [`config.kit.env.publicPrefix`](https://kit.svelte.dev/docs/configuration#env).
+ * Environment variables [loaded by Vite](https://vitejs.dev/guide/env-and-mode.html#env-files) from `.env` files and `process.env`. Like [`$env/dynamic/private`](https://kit.svelte.dev/docs/modules#$env-dynamic-private), this module cannot be imported into client-side code. This module only includes variables that _do not_ begin with [`config.kit.env.publicPrefix`](https://kit.svelte.dev/docs/configuration#env) _and do_ start with [`config.kit.env.privatePrefix`](https://kit.svelte.dev/docs/configuration#env) (if configured).
  * 
  * _Unlike_ [`$env/dynamic/private`](https://kit.svelte.dev/docs/modules#$env-dynamic-private), the values exported from this module are statically injected into your bundle at build time, enabling optimisations like dead code elimination.
  * 
@@ -26,105 +26,72 @@
  * ```
  */
 declare module '$env/static/private' {
-	export const SHELL: string;
-	export const LSCOLORS: string;
-	export const WINDOWID: string;
-	export const COLORTERM: string;
-	export const LESS: string;
-	export const XDG_SESSION_PATH: string;
-	export const HISTCONTROL: string;
-	export const TERM_PROGRAM_VERSION: string;
 	export const TMUX: string;
-	export const NODE: string;
-	export const npm_package_devDependencies__types_cookie: string;
-	export const LC_ADDRESS: string;
-	export const npm_package_scripts_check_watch: string;
-	export const DOTNET_ROOT: string;
-	export const LC_NAME: string;
-	export const PYTHIA8DATA: string;
-	export const DESKTOP_SESSION: string;
-	export const LC_MONETARY: string;
-	export const EDITOR: string;
-	export const GTK_MODULES: string;
-	export const XDG_SEAT: string;
-	export const PWD: string;
-	export const npm_package_devDependencies_vite: string;
-	export const LOGNAME: string;
-	export const XDG_SESSION_DESKTOP: string;
-	export const QT_QPA_PLATFORMTHEME: string;
-	export const XDG_SESSION_TYPE: string;
-	export const PYTHIA8: string;
-	export const npm_package_scripts_build: string;
-	export const XAUTHORITY: string;
-	export const QT_STYLE_OVERRIDE: string;
-	export const MOTD_SHOWN: string;
-	export const HOME: string;
-	export const LANG: string;
-	export const LC_PAPER: string;
-	export const npm_package_dependencies__sveltejs_adapter_static: string;
-	export const npm_package_devDependencies_typescript: string;
-	export const LS_COLORS: string;
-	export const XDG_CURRENT_DESKTOP: string;
-	export const npm_package_version: string;
-	export const XDG_SEAT_PATH: string;
-	export const INIT_CWD: string;
-	export const DOTNET_BUNDLE_EXTRACT_BASE_DIR: string;
-	export const npm_package_scripts_preview: string;
-	export const ALACRITTY_SOCKET: string;
-	export const npm_lifecycle_script: string;
-	export const npm_package_devDependencies_svelte_check: string;
-	export const XDG_SESSION_CLASS: string;
-	export const LC_IDENTIFICATION: string;
-	export const TERM: string;
-	export const npm_package_name: string;
-	export const ZSH: string;
-	export const npm_package_type: string;
 	export const USER: string;
-	export const TMUX_PANE: string;
-	export const CUDA_PATH: string;
-	export const PAM_KWALLET5_LOGIN: string;
-	export const VISUAL: string;
-	export const npm_package_dependencies_dotenv: string;
-	export const DISPLAY: string;
-	export const npm_lifecycle_event: string;
-	export const SHLVL: string;
-	export const PAGER: string;
-	export const LC_TELEPHONE: string;
-	export const LC_MESSAGES: string;
-	export const LC_MEASUREMENT: string;
-	export const XDG_VTNR: string;
-	export const XDG_SESSION_ID: string;
 	export const npm_config_user_agent: string;
-	export const npm_package_devDependencies__fontsource_fira_mono: string;
-	export const PNPM_SCRIPT_SRC_DIR: string;
-	export const npm_execpath: string;
-	export const npm_package_devDependencies__sveltejs_adapter_auto: string;
-	export const npm_package_devDependencies_svelte: string;
-	export const XDG_RUNTIME_DIR: string;
-	export const NODE_PATH: string;
-	export const MKLROOT: string;
-	export const DEBUGINFOD_URLS: string;
-	export const LC_TIME: string;
-	export const npm_package_scripts_dev: string;
-	export const GTK3_MODULES: string;
-	export const XDG_DATA_DIRS: string;
-	export const npm_package_scripts_check: string;
-	export const BROWSER: string;
-	export const PATH: string;
-	export const npm_config_node_gyp: string;
-	export const ALACRITTY_LOG: string;
-	export const npm_package_devDependencies__neoconfetti_svelte: string;
-	export const npm_package_devDependencies__sveltejs_kit: string;
-	export const npm_package_dependencies__jridgewell_sourcemap_codec: string;
-	export const DBUS_SESSION_BUS_ADDRESS: string;
-	export const MAIL: string;
-	export const npm_config_registry: string;
-	export const ALACRITTY_WINDOW_ID: string;
 	export const npm_node_execpath: string;
-	export const npm_config_engine_strict: string;
-	export const LC_NUMERIC: string;
+	export const SHLVL: string;
+	export const npm_config_noproxy: string;
+	export const LESS: string;
+	export const HOME: string;
+	export const ASDF_DIR: string;
 	export const OLDPWD: string;
+	export const TERM_PROGRAM_VERSION: string;
+	export const ASDF_DEFAULT_TOOL_VERSIONS_FILENAME: string;
+	export const npm_package_json: string;
+	export const LSCOLORS: string;
+	export const ZSH: string;
+	export const PAGER: string;
+	export const npm_config_userconfig: string;
+	export const npm_config_local_prefix: string;
+	export const GOROOT: string;
+	export const DBUS_SESSION_BUS_ADDRESS: string;
+	export const COLORTERM: string;
+	export const WSL_DISTRO_NAME: string;
+	export const COLOR: string;
+	export const CONDA_CHANGEPS1: string;
+	export const WAYLAND_DISPLAY: string;
+	export const LOGNAME: string;
+	export const NAME: string;
+	export const WSL_INTEROP: string;
+	export const PULSE_SERVER: string;
+	export const npm_config_prefix: string;
+	export const npm_config_npm_version: string;
+	export const TERM: string;
+	export const PROMPT_EOL_MARK: string;
+	export const npm_config_cache: string;
+	export const AUTOJUMP_ERROR_PATH: string;
+	export const ASDF_CONFIG_FILE: string;
+	export const npm_config_node_gyp: string;
+	export const PATH: string;
+	export const NODE: string;
+	export const npm_package_name: string;
+	export const XDG_RUNTIME_DIR: string;
+	export const DISPLAY: string;
+	export const LANG: string;
+	export const LS_COLORS: string;
 	export const TERM_PROGRAM: string;
+	export const npm_lifecycle_script: string;
+	export const SHELL: string;
+	export const GOPATH: string;
+	export const npm_package_version: string;
+	export const npm_lifecycle_event: string;
+	export const ASDF_DATA_DIR: string;
+	export const npm_config_globalconfig: string;
+	export const npm_config_init_module: string;
+	export const PWD: string;
+	export const npm_execpath: string;
+	export const VIRTUAL_ENV_DISABLE_PROMPT: string;
+	export const npm_config_global_prefix: string;
+	export const AUTOJUMP_SOURCED: string;
+	export const npm_command: string;
+	export const WSL2_GUI_APPS_ENABLED: string;
+	export const PNPM_HOME: string;
+	export const TMUX_PANE: string;
+	export const HOSTTYPE: string;
+	export const EDITOR: string;
+	export const WSLENV: string;
+	export const INIT_CWD: string;
 	export const NODE_ENV: string;
 }
 
@@ -138,11 +105,11 @@ declare module '$env/static/private' {
  * ```
  */
 declare module '$env/static/public' {
-
+	
 }
 
 /**
- * This module provides access to runtime environment variables, as defined by the platform you're running on. For example if you're using [`adapter-node`](https://github.com/sveltejs/kit/tree/master/packages/adapter-node) (or running [`vite preview`](https://kit.svelte.dev/docs/cli)), this is equivalent to `process.env`. This module only includes variables that _do not_ begin with [`config.kit.env.publicPrefix`](https://kit.svelte.dev/docs/configuration#env).
+ * This module provides access to runtime environment variables, as defined by the platform you're running on. For example if you're using [`adapter-node`](https://github.com/sveltejs/kit/tree/master/packages/adapter-node) (or running [`vite preview`](https://kit.svelte.dev/docs/cli)), this is equivalent to `process.env`. This module only includes variables that _do not_ begin with [`config.kit.env.publicPrefix`](https://kit.svelte.dev/docs/configuration#env) _and do_ start with [`config.kit.env.privatePrefix`](https://kit.svelte.dev/docs/configuration#env) (if configured).
  * 
  * This module cannot be imported into client-side code.
  * 
@@ -155,108 +122,75 @@ declare module '$env/static/public' {
  */
 declare module '$env/dynamic/private' {
 	export const env: {
-		SHELL: string;
-		LSCOLORS: string;
-		WINDOWID: string;
-		COLORTERM: string;
-		LESS: string;
-		XDG_SESSION_PATH: string;
-		HISTCONTROL: string;
-		TERM_PROGRAM_VERSION: string;
 		TMUX: string;
-		NODE: string;
-		npm_package_devDependencies__types_cookie: string;
-		LC_ADDRESS: string;
-		npm_package_scripts_check_watch: string;
-		DOTNET_ROOT: string;
-		LC_NAME: string;
-		PYTHIA8DATA: string;
-		DESKTOP_SESSION: string;
-		LC_MONETARY: string;
-		EDITOR: string;
-		GTK_MODULES: string;
-		XDG_SEAT: string;
-		PWD: string;
-		npm_package_devDependencies_vite: string;
-		LOGNAME: string;
-		XDG_SESSION_DESKTOP: string;
-		QT_QPA_PLATFORMTHEME: string;
-		XDG_SESSION_TYPE: string;
-		PYTHIA8: string;
-		npm_package_scripts_build: string;
-		XAUTHORITY: string;
-		QT_STYLE_OVERRIDE: string;
-		MOTD_SHOWN: string;
-		HOME: string;
-		LANG: string;
-		LC_PAPER: string;
-		npm_package_dependencies__sveltejs_adapter_static: string;
-		npm_package_devDependencies_typescript: string;
-		LS_COLORS: string;
-		XDG_CURRENT_DESKTOP: string;
-		npm_package_version: string;
-		XDG_SEAT_PATH: string;
-		INIT_CWD: string;
-		DOTNET_BUNDLE_EXTRACT_BASE_DIR: string;
-		npm_package_scripts_preview: string;
-		ALACRITTY_SOCKET: string;
-		npm_lifecycle_script: string;
-		npm_package_devDependencies_svelte_check: string;
-		XDG_SESSION_CLASS: string;
-		LC_IDENTIFICATION: string;
-		TERM: string;
-		npm_package_name: string;
-		ZSH: string;
-		npm_package_type: string;
 		USER: string;
-		TMUX_PANE: string;
-		CUDA_PATH: string;
-		PAM_KWALLET5_LOGIN: string;
-		VISUAL: string;
-		npm_package_dependencies_dotenv: string;
-		DISPLAY: string;
-		npm_lifecycle_event: string;
-		SHLVL: string;
-		PAGER: string;
-		LC_TELEPHONE: string;
-		LC_MESSAGES: string;
-		LC_MEASUREMENT: string;
-		XDG_VTNR: string;
-		XDG_SESSION_ID: string;
 		npm_config_user_agent: string;
-		npm_package_devDependencies__fontsource_fira_mono: string;
-		PNPM_SCRIPT_SRC_DIR: string;
-		npm_execpath: string;
-		npm_package_devDependencies__sveltejs_adapter_auto: string;
-		npm_package_devDependencies_svelte: string;
-		XDG_RUNTIME_DIR: string;
-		NODE_PATH: string;
-		MKLROOT: string;
-		DEBUGINFOD_URLS: string;
-		LC_TIME: string;
-		npm_package_scripts_dev: string;
-		GTK3_MODULES: string;
-		XDG_DATA_DIRS: string;
-		npm_package_scripts_check: string;
-		BROWSER: string;
-		PATH: string;
-		npm_config_node_gyp: string;
-		ALACRITTY_LOG: string;
-		npm_package_devDependencies__neoconfetti_svelte: string;
-		npm_package_devDependencies__sveltejs_kit: string;
-		npm_package_dependencies__jridgewell_sourcemap_codec: string;
-		DBUS_SESSION_BUS_ADDRESS: string;
-		MAIL: string;
-		npm_config_registry: string;
-		ALACRITTY_WINDOW_ID: string;
 		npm_node_execpath: string;
-		npm_config_engine_strict: string;
-		LC_NUMERIC: string;
+		SHLVL: string;
+		npm_config_noproxy: string;
+		LESS: string;
+		HOME: string;
+		ASDF_DIR: string;
 		OLDPWD: string;
+		TERM_PROGRAM_VERSION: string;
+		ASDF_DEFAULT_TOOL_VERSIONS_FILENAME: string;
+		npm_package_json: string;
+		LSCOLORS: string;
+		ZSH: string;
+		PAGER: string;
+		npm_config_userconfig: string;
+		npm_config_local_prefix: string;
+		GOROOT: string;
+		DBUS_SESSION_BUS_ADDRESS: string;
+		COLORTERM: string;
+		WSL_DISTRO_NAME: string;
+		COLOR: string;
+		CONDA_CHANGEPS1: string;
+		WAYLAND_DISPLAY: string;
+		LOGNAME: string;
+		NAME: string;
+		WSL_INTEROP: string;
+		PULSE_SERVER: string;
+		npm_config_prefix: string;
+		npm_config_npm_version: string;
+		TERM: string;
+		PROMPT_EOL_MARK: string;
+		npm_config_cache: string;
+		AUTOJUMP_ERROR_PATH: string;
+		ASDF_CONFIG_FILE: string;
+		npm_config_node_gyp: string;
+		PATH: string;
+		NODE: string;
+		npm_package_name: string;
+		XDG_RUNTIME_DIR: string;
+		DISPLAY: string;
+		LANG: string;
+		LS_COLORS: string;
 		TERM_PROGRAM: string;
+		npm_lifecycle_script: string;
+		SHELL: string;
+		GOPATH: string;
+		npm_package_version: string;
+		npm_lifecycle_event: string;
+		ASDF_DATA_DIR: string;
+		npm_config_globalconfig: string;
+		npm_config_init_module: string;
+		PWD: string;
+		npm_execpath: string;
+		VIRTUAL_ENV_DISABLE_PROMPT: string;
+		npm_config_global_prefix: string;
+		AUTOJUMP_SOURCED: string;
+		npm_command: string;
+		WSL2_GUI_APPS_ENABLED: string;
+		PNPM_HOME: string;
+		TMUX_PANE: string;
+		HOSTTYPE: string;
+		EDITOR: string;
+		WSLENV: string;
+		INIT_CWD: string;
 		NODE_ENV: string;
 		[key: `PUBLIC_${string}`]: undefined;
-		[key: string]: string | undefined;
+		[key: `${string}`]: string | undefined;
 	}
 }
 

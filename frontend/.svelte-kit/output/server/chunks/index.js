@@ -19,36 +19,6 @@ function subscribe(store, ...callbacks) {
   const unsub = store.subscribe(...callbacks);
   return unsub.unsubscribe ? () => unsub.unsubscribe() : unsub;
 }
-function null_to_empty(value) {
-  return value == null ? "" : value;
-}
-const is_client = typeof window !== "undefined";
-let now = is_client ? () => window.performance.now() : () => Date.now();
-let raf = is_client ? (cb) => requestAnimationFrame(cb) : noop;
-const tasks = /* @__PURE__ */ new Set();
-function run_tasks(now2) {
-  tasks.forEach((task) => {
-    if (!task.c(now2)) {
-      tasks.delete(task);
-      task.f();
-    }
-  });
-  if (tasks.size !== 0)
-    raf(run_tasks);
-}
-function loop(callback) {
-  let task;
-  if (tasks.size === 0)
-    raf(run_tasks);
-  return {
-    promise: new Promise((fulfill) => {
-      tasks.add(task = { c: callback, f: fulfill });
-    }),
-    abort() {
-      tasks.delete(task);
-    }
-  };
-}
 let current_component;
 function set_current_component(component) {
   current_component = component;
@@ -65,7 +35,6 @@ function setContext(key, context) {
 function getContext(key) {
   return get_current_component().$$.context.get(key);
 }
-Promise.resolve();
 const ATTR_REGEX = /[&"]/g;
 const CONTENT_REGEX = /[&<]/g;
 function escape(value, is_attr = false) {
@@ -81,13 +50,6 @@ function escape(value, is_attr = false) {
     last = i + 1;
   }
   return escaped + str.substring(last);
-}
-function each(items, fn) {
-  let str = "";
-  for (let i = 0; i < items.length; i += 1) {
-    str += fn(items[i], i);
-  }
-  return str;
 }
 const missing_component = {
   $$render: () => ""
@@ -107,6 +69,7 @@ function create_ssr_component(fn) {
     const $$ = {
       on_destroy,
       context: new Map(context || (parent_component ? parent_component.$$.context : [])),
+      // these will be immediately discarded
       on_mount: [],
       before_update: [],
       after_update: [],
@@ -128,6 +91,7 @@ function create_ssr_component(fn) {
         css: {
           code: Array.from(result.css).map((css) => css.code).join("\n"),
           map: null
+          // TODO
         },
         head: result.title + result.head
       };
@@ -142,18 +106,14 @@ function add_attribute(name, value, boolean) {
   return ` ${name}${assignment}`;
 }
 export {
-  safe_not_equal as a,
+  setContext as a,
   subscribe as b,
   create_ssr_component as c,
   add_attribute as d,
   escape as e,
-  now as f,
   getContext as g,
-  each as h,
-  null_to_empty as i,
-  loop as l,
   missing_component as m,
   noop as n,
-  setContext as s,
+  safe_not_equal as s,
   validate_component as v
 };
