@@ -41,21 +41,7 @@
     "isEntry": true,
     "src": "node_modules/@sveltejs/kit/src/runtime/server/index.js"
   },
-  "src/lib/assets/images/logo-universal.png": {
-    "file": "_app/immutable/assets/logo-universal.157a874a.png",
-    "src": "src/lib/assets/images/logo-universal.png"
-  },
-  "src/routes/+page.css": {
-    "file": "_app/immutable/assets/_page.70cb8426.css",
-    "src": "src/routes/+page.css"
-  },
   "src/routes/+page.svelte": {
-    "assets": [
-      "_app/immutable/assets/logo-universal.157a874a.png"
-    ],
-    "css": [
-      "_app/immutable/assets/_page.70cb8426.css"
-    ],
     "file": "entries/pages/_page.svelte.js",
     "imports": [
       "_index.js"

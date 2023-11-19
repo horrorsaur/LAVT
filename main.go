@@ -19,20 +19,26 @@ func main() {
 
 	err := wails.Run(&options.App{
 		Title:            "LAVT",
-		Width:            1920,
-		Height:           1080,
-		WindowStartState: options.Maximised,
+		Width:            1080,
+		Height:           720,
+		BackgroundColour: &options.RGBA{R: 27, G: 25, B: 10, A: 1},
+		WindowStartState: options.Fullscreen,
 		Fullscreen:       true,
 		Frameless:        true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		BackgroundColour: &options.RGBA{R: 255, G: 255, B: 255, A: 1},
-		OnStartup:        app.startup,
+		OnStartup: app.startup,
 		Bind: []interface{}{
 			app,
 		},
-		Windows: &windows.Options{},
+		Windows: &windows.Options{
+			// Webview is transparent when alpha=0
+			WebviewIsTransparent: true,
+			WindowIsTranslucent:  true,
+			BackdropType:         windows.Mica,
+			Theme:                windows.SystemDefault,
+		},
 	})
 
 	if err != nil {
