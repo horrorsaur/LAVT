@@ -21,7 +21,7 @@ func main() {
 		Title:            "LAVT",
 		Width:            1080,
 		Height:           720,
-		BackgroundColour: &options.RGBA{R: 27, G: 25, B: 10, A: 1},
+		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 0},
 		WindowStartState: options.Fullscreen,
 		Fullscreen:       true,
 		Frameless:        true,
@@ -35,7 +35,7 @@ func main() {
 		Windows: &windows.Options{
 			// Webview is transparent when alpha=0
 			WebviewIsTransparent: true,
-			WindowIsTranslucent:  true,
+			WindowIsTranslucent:  false, // windows frosty thing
 			BackdropType:         windows.Mica,
 			Theme:                windows.SystemDefault,
 		},
