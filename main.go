@@ -6,6 +6,7 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/linux"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 )
 
@@ -19,12 +20,10 @@ func main() {
 
 	err := wails.Run(&options.App{
 		Title:            "LAVT",
-		Width:            1080,
-		Height:           720,
-		BackgroundColour: &options.RGBA{R: 0, G: 0, B: 0, A: 0},
-		WindowStartState: options.Fullscreen,
-		Fullscreen:       true,
-		Frameless:        true,
+		Width:            1024,
+		Height:           768,
+		BackgroundColour: options.NewRGBA(27, 27, 155, 0),
+		WindowStartState: options.Normal,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
@@ -33,11 +32,11 @@ func main() {
 			app,
 		},
 		Windows: &windows.Options{
-			// Webview is transparent when alpha=0
 			WebviewIsTransparent: true,
-			WindowIsTranslucent:  false, // windows frosty thing
-			BackdropType:         windows.Mica,
-			Theme:                windows.SystemDefault,
+			WindowIsTranslucent:  true,
+		},
+		Linux: &linux.Options{
+			WindowIsTranslucent: true,
 		},
 	})
 

@@ -1,6 +1,6 @@
-module changeme
+module github.com/horrorsaur/LAVT
 
-go 1.18
+go 1.21.1
 
 require github.com/wailsapp/wails/v2 v2.6.0
 
