@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"nhooyr.io/websocket"
 )
 
@@ -42,10 +41,10 @@ func (w *ValorantClient) connectToRiotWS(ctx context.Context) *websocket.Conn {
 
 	log.Printf("connecting to %v", url)
 	conn, resp, err := websocket.Dial(ctx, url, nil)
+	log.Printf("resp: \n\n %v+", resp)
+	log.Printf("conn: \n\n %v+", conn)
+
 	if err != nil {
-		runtime.LogInfof(ctx, "resp: \n\n %v+", resp)
-		runtime.LogInfof(ctx, "conn: \n\n %v+", conn)
-		runtime.LogInfof(ctx, "ctx: \n\n %v+", conn)
 		panic(err)
 	}
 
