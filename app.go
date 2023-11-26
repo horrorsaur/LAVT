@@ -41,7 +41,8 @@ func (a *App) startup(ctx context.Context) {
 
 	lockfile := <-watcher.Ch
 	client := api.NewClient(lockfile)
-	client.Connect(ctx)
+	// client.Connect(ctx)
+	client.GetSession(ctx)
 }
 
 // Called after the frontend has been destroyed, just before the application terminates.

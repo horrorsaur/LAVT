@@ -2,18 +2,23 @@ package valorant
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"log"
+	"net/http"
 	"strconv"
 	"time"
 
 	"nhooyr.io/websocket"
 )
 
+const REQUEST_TIMEOUT = 30 * time.Second
+
 type (
 	ValorantClient struct {
 		lockfile *RiotClientLockfileInfo
-		conn     *websocket.Conn
+		http     *http.Client
+		socket   *websocket.Conn
 	}
 )
 
@@ -21,6 +26,7 @@ type (
 func NewClient(lockfile *RiotClientLockfileInfo) *ValorantClient {
 	return &ValorantClient{
 		lockfile: lockfile,
+		http:     &http.Client{},
 	}
 }
 
@@ -29,10 +35,9 @@ func (w *ValorantClient) Connect(ctx context.Context) {
 }
 
 func (w *ValorantClient) connectToRiotWS(ctx context.Context) *websocket.Conn {
-	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, REQUEST_TIMEOUT)
 	defer cancel()
 
-	// password := base64.StdEncoding.EncodeToString([]byte(w.lockfile.Password))
 	url := fmt.Sprintf(
 		"ws://riot:%s@localhost:%s/",
 		w.lockfile.Password,
@@ -41,6 +46,7 @@ func (w *ValorantClient) connectToRiotWS(ctx context.Context) *websocket.Conn {
 
 	log.Printf("connecting to %v", url)
 	conn, resp, err := websocket.Dial(ctx, url, nil)
+
 	log.Printf("resp: \n\n %v+", resp)
 	log.Printf("conn: \n\n %v+", conn)
 
@@ -48,12 +54,32 @@ func (w *ValorantClient) connectToRiotWS(ctx context.Context) *websocket.Conn {
 		panic(err)
 	}
 
-	// headers := http.Header{}
-	// headers.Add("Authorization", fmt.Sprintf("Basic %v", w.lockfile.Password))
-
 	// dialOptions := &websocket.DialOptions{
 	// 	HTTPHeader: headers,
 	// }
 
 	return conn
+}
+
+func (w *ValorantClient) GetSession(ctx context.Context) {
+	ctx, cancel := context.WithTimeout(ctx, REQUEST_TIMEOUT)
+	defer cancel()
+
+	url := fmt.Sprintf("https://127.0.0.1:%v/chat/v1/session", w.lockfile.Port)
+
+	headers := http.Header{}
+	password := base64.StdEncoding.EncodeToString([]byte(w.lockfile.Password))
+	headers.Add("Authorization", fmt.Sprintf("Basic %s", password))
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		panic(err)
+	}
+	req.Header = headers
+	resp, err := w.http.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("resp: \n\n %v+", resp)
 }

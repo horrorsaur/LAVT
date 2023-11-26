@@ -10,3 +10,4 @@ INFO  | conn:
 INFO  | ctx: 
 
  <nil>+
+INFO  | Serving assets from frontend DevServer URL: http://localhost:5173/

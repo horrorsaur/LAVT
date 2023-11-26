@@ -7,4 +7,4 @@ frontend/*.lock
 frontend/*.md5
 frontend/.npmrc
 .git
-
+./app.log
