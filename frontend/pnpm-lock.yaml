@@ -16,6 +16,12 @@ dependencies:
     version: 2023.11.19-1.0
 
 devDependencies:
+  '@skeletonlabs/skeleton':
+    specifier: ^2.5.1
+    version: 2.5.1(svelte@4.2.5)
+  '@skeletonlabs/tw-plugin':
+    specifier: ^0.2.4
+    version: 0.2.4(tailwindcss@3.3.5)
   '@sveltejs/adapter-static':
     specifier: ^2.0.3
     version: 2.0.3(@sveltejs/kit@1.27.6)
@@ -403,6 +409,23 @@ packages:
 
   /@polka/url@1.0.0-next.23:
     resolution: {integrity: sha512-C16M+IYz0rgRhWZdCmK+h58JMv8vijAA61gmz2rspCSwKwzBebpdcsiUmwrtJRdphuY30i6BSLEOP8ppbNLyLg==}
+    dev: true
+
+  /@skeletonlabs/skeleton@2.5.1(svelte@4.2.5):
+    resolution: {integrity: sha512-llzzKr6PQV1MUsJybdo3Z0SaVwm00KDf8DKhlVTt3X3fbCjIbS9rK6sLzJKZO01L/cQYtAzdVXv9CxALtIuy0w==}
+    peerDependencies:
+      svelte: ^3.56.0 || ^4.0.0
+    dependencies:
+      esm-env: 1.0.0
+      svelte: 4.2.5
+    dev: true
+
+  /@skeletonlabs/tw-plugin@0.2.4(tailwindcss@3.3.5):
+    resolution: {integrity: sha512-DmOFMV6jhhvnub/TANB62nJJqxfMBby5Kxwe/Mn3DTxHuJLZj8B47Ta2K5sl/or2B8MaMfny8ocvPAzd6lrMtQ==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0'
+    dependencies:
+      tailwindcss: 3.3.5
     dev: true
 
   /@sveltejs/adapter-static@2.0.3(@sveltejs/kit@1.27.6):
