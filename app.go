@@ -2,26 +2,49 @@ package main
 
 import (
 	"context"
+	"errors"
+	"time"
 
+	api "github.com/horrorsaur/LAVT/backend/api/valorant"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-type App struct {
-	ctx context.Context
-}
+type (
+	App struct {
+		ctx    context.Context
+		client *api.ValorantClient
+	}
+)
 
 func NewApp() *App {
 	return &App{}
 }
 
+// Called after the frontend has been created, but before index.html has been loaded.
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+
+	// setup lockfile watcher
+	watcher, watcherErr := api.NewLockfileWatcher()
+	if watcherErr != nil {
+		panic(watcherErr) // panic for now, valo isnt installed or custom directory
+	}
+
+	// scan cache directory for lockfile
+	ok, scanErr := watcher.Scan()
+
+	// lockfile not found, setup watcher
+	if !ok && errors.Is(scanErr, api.RiotClientLockfileNotFound) {
+		runtime.LogInfo(ctx, "setting up watcher to scan every 5 seconds")
+		watcher.Watch(5000 * time.Millisecond) // every 5s
+	}
+
+	lockfile := <-watcher.Ch
+	client := api.NewClient(lockfile)
+	client.Connect(ctx)
 }
 
-func (a *App) SetTransparentWindow() {
-	runtime.WindowSetBackgroundColour(a.ctx, 0, 0, 0, 0)
+// Called after the frontend has been destroyed, just before the application terminates.
+func (a *App) shutdown(ctx context.Context) {
+	runtime.LogInfo(a.ctx, "Shutting down!")
 }
-
-// "github.com/lxn/win"
-// hwnd := win.FindWindow(nil, syscall.StringToUTF16Ptr("Your App Title"))
-// win.SetWindowLong(hwnd, win.GWL_EXSTYLE, win.GetWindowLong(hwnd, win.GWL_EXSTYLE)|win.WS_EX_LAYERED)

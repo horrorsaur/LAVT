@@ -26,4 +26,4 @@ build:
 # Wails CLI handles building for the 'run' command
 .PHONY: run
 run:
-	wails dev
+	./scripts/dev.sh
