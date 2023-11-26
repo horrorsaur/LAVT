@@ -35,7 +35,7 @@ func (w *ValorantClient) connectToRiotWS(ctx context.Context) *websocket.Conn {
 
 	// password := base64.StdEncoding.EncodeToString([]byte(w.lockfile.Password))
 	url := fmt.Sprintf(
-		"wss://riot:%s@localhost:%s/",
+		"ws://riot:%s@localhost:%s/",
 		w.lockfile.Password,
 		strconv.Itoa(w.lockfile.Port),
 	)
