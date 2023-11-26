@@ -2,6 +2,7 @@ package valorant
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/base64"
 	"fmt"
 	"log"
@@ -26,7 +27,11 @@ type (
 func NewClient(lockfile *RiotClientLockfileInfo) *ValorantClient {
 	return &ValorantClient{
 		lockfile: lockfile,
-		http:     &http.Client{},
+		http: &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			},
+		},
 	}
 }
 
