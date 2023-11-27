@@ -22,35 +22,50 @@ var assets embed.FS
 
 func main() {
 	app := NewApp()
-	err := wails.Run(&options.App{
-		Title:             "LAVT",
-		Width:             800,
-		Height:            600,
-		BackgroundColour:  options.NewRGBA(27, 27, 155, 0),
-		WindowStartState:  options.Maximised,
-		Frameless:         true,
-		StartHidden:       true,
-		HideWindowOnClose: true,
-		AlwaysOnTop:       true,
-		LogLevel:          logger.INFO,
-		Logger:            logger.NewFileLogger("./app.log"),
-		AssetServer: &assetserver.Options{
-			Assets: assets,
-		},
-		OnStartup:  app.startup,
-		OnShutdown: app.shutdown,
-		Bind: []interface{}{
-			app,
-		},
-		Windows: &windows.Options{
-			WebviewIsTransparent: true,
-			WindowIsTranslucent:  true,
-		},
-		Linux: &linux.Options{
-			WindowIsTranslucent: true,
-		},
-	})
 
+	opts := &options.App{
+		Title:            "LAVT",
+		BackgroundColour: options.NewRGBA(27, 27, 155, 0),
+	}
+
+	// Frontend should start as hidden
+	opts.Frameless = false
+	opts.StartHidden = false
+	opts.HideWindowOnClose = true
+	opts.WindowStartState = options.Maximised
+
+	// Application renders on top of other windows
+	opts.AlwaysOnTop = true
+
+	// Logging
+	opts.LogLevel = logger.INFO
+	opts.Logger = logger.NewFileLogger("./app.log")
+
+	// Embedded assets
+	opts.AssetServer = &assetserver.Options{
+		Assets: assets,
+	}
+
+	// Windows platform options
+	opts.Windows = &windows.Options{
+		WebviewIsTransparent: true,
+		WindowIsTranslucent:  true,
+	}
+
+	// Linux platform options
+	opts.Linux = &linux.Options{
+		WindowIsTranslucent: true,
+	}
+
+	opts.Bind = []interface{}{
+		app,
+	}
+
+	opts.OnStartup = app.startup
+	opts.OnShutdown = app.shutdown
+
+	// Run the app
+	err := wails.Run(opts)
 	if err != nil {
 		println("Error:", err.Error())
 	}
