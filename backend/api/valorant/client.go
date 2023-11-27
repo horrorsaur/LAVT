@@ -118,3 +118,7 @@ func (w *ValorantClient) GetHelp(ctx context.Context) {
 
 	log.Printf("resp: \n\n %+v", string(body))
 }
+
+func (w *ValorantClient) GetPresences(ctx context.Context) {
+	log.Printf("get presences")
+}
