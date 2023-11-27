@@ -3,8 +3,8 @@ package valorant
 import (
 	"context"
 	"crypto/tls"
-	"encoding/base64"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -66,25 +66,55 @@ func (w *ValorantClient) connectToRiotWS(ctx context.Context) *websocket.Conn {
 	return conn
 }
 
+// TODO: refactor request creation behind pkg
 func (w *ValorantClient) GetSession(ctx context.Context) {
 	ctx, cancel := context.WithTimeout(ctx, REQUEST_TIMEOUT)
 	defer cancel()
 
 	url := fmt.Sprintf("https://127.0.0.1:%v/chat/v1/session", w.lockfile.Port)
-
-	headers := http.Header{}
-	password := base64.StdEncoding.EncodeToString([]byte(w.lockfile.Password))
-	headers.Add("Authorization", fmt.Sprintf("Basic %s", password))
-
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req.SetBasicAuth("riot", w.lockfile.Password) // this is neat
 	if err != nil {
 		panic(err)
 	}
-	req.Header = headers
+
 	resp, err := w.http.Do(req)
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("resp: \n\n %v+", resp)
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("resp: \n\n %+v", string(body))
+}
+
+func (w *ValorantClient) GetHelp(ctx context.Context) {
+	ctx, cancel := context.WithTimeout(ctx, REQUEST_TIMEOUT)
+	defer cancel()
+
+	url := fmt.Sprintf("https://127.0.0.1:%v/help", w.lockfile.Port)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req.SetBasicAuth("riot", w.lockfile.Password) // this is neat
+	if err != nil {
+		panic(err)
+	}
+
+	resp, err := w.http.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("resp: \n\n %+v", string(body))
 }
