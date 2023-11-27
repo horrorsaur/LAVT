@@ -13,14 +13,14 @@ import (
 )
 
 var (
-	UnknownLocalCacheDirectory = errors.New("could not finds users local cache directory")
-	UnknownValorantDirectory   = errors.New("could not find valorant directory")
-	UnexpectedLockfileData     = errors.New("lockfile data format is not expected")
+	unknownLocalCacheDirectory = errors.New("could not finds users local cache directory")
+	unknownValorantDirectory   = errors.New("could not find valorant directory")
+	unexpectedLockfileData     = errors.New("lockfile data format is not expected")
 	RiotClientLockfileNotFound = errors.New("the riot client lockfile was not found within the app dir")
 )
 
 type (
-	// Riot LCU lockfile (Updated: 11/25)
+	// Riot LCU lockfile
 	//
 	// Process Name : Process ID : Port : Password : Protocol
 	RiotClientLockfileInfo struct {
@@ -48,7 +48,7 @@ func NewLockfileWatcher() (*LockfileWatcher, error) {
 	appDataDir, err := os.UserCacheDir()
 	if err != nil {
 		log.Printf("user cache dir err: %s", err)
-		return nil, UnknownLocalCacheDirectory
+		return nil, unknownLocalCacheDirectory
 	}
 
 	w := &LockfileWatcher{
@@ -60,7 +60,7 @@ func NewLockfileWatcher() (*LockfileWatcher, error) {
 	if _, err := os.Stat(w.getLockfileDirectory()); err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
 			log.Printf(err.Error())
-			return nil, UnknownValorantDirectory
+			return nil, unknownValorantDirectory
 		}
 	}
 
@@ -158,7 +158,7 @@ func (w *LockfileWatcher) Watch(duration time.Duration) {
 	}()
 }
 
-// Reads the Riot Client lockfile at the given path
+// reads the Riot Client lockfile at the given path
 func readLockfile(path string) (*RiotClientLockfileInfo, error) {
 	res, err := os.ReadFile(path)
 	if err != nil {
@@ -167,7 +167,7 @@ func readLockfile(path string) (*RiotClientLockfileInfo, error) {
 
 	lockfileData := strings.Split(string(res), ":")
 	if len(lockfileData) != int(5) {
-		return nil, UnexpectedLockfileData
+		return nil, unexpectedLockfileData
 	}
 
 	name := lockfileData[0]

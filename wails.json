@@ -9,8 +9,6 @@
   "frontend:dev:serverUrl": "auto",
   "wailsjsdir": "./frontend/src/lib",
   "author": {
-    "name": "horrorsaur",
-    "email": "horrorsaur@gmail.com"
-  },
-  "appargs": "GOOS=windows"
+    "name": "horrorsaur"
+  }
 }

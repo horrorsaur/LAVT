@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	api "github.com/horrorsaur/LAVT/backend/api/valorant"
+	api "github.com/horrorsaur/LAVT/internal/backend/api/valorant"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
