@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"log"
 	"strings"
 
 	"github.com/mitchellh/go-ps"
@@ -15,13 +16,15 @@ func getProcessList() []ps.Process {
 	return psps
 }
 
-func searchProcessName(name string) bool {
+// Search for a process by name and returns it if found.
+func GetProcessByName(name string) (bool, ps.Process) {
+	log.Printf("searching for %s ...", name)
 	for _, ps := range getProcessList() {
 		exName := ps.Executable()
 		if strings.Contains(exName, name) {
-			return true
+			log.Printf("found! NAME: %v PID: %v PPID %v", exName, ps.Pid(), ps.PPid())
+			return true, ps
 		}
 	}
-
-	return false
+	return false, nil
 }
