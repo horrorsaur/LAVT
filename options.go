@@ -12,15 +12,15 @@ func NewOptions() *options.App {
 	opts := &options.App{
 		Title:            "LAVT",
 		BackgroundColour: options.NewRGBA(27, 27, 155, 0),
-		Width:            1920,
-		Height:           1080,
+		Width:            800,
+		Height:           600,
 	}
 
 	// Frontend should start as hidden
-	opts.Frameless = true
+	opts.Frameless = false
 	opts.StartHidden = false
 	opts.HideWindowOnClose = true
-	opts.WindowStartState = options.Maximised
+	opts.WindowStartState = options.Normal
 
 	// Application renders on top of other windows
 	opts.AlwaysOnTop = true

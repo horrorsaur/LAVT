@@ -5,26 +5,29 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"nhooyr.io/websocket"
 )
 
 const REQUEST_TIMEOUT = 30 * time.Second
+const WEBSOCKET_TIMEOUT = 30 * time.Second
 
 type (
 	ValorantClient struct {
 		lockfile *RiotClientLockfileInfo
 		http     *http.Client
 		socket   *websocket.Conn
+
+		baseUrl string
 	}
 )
 
 // Returns a new RiotClient from reading the lockfile at LOCALAPPDIR
-func NewClient(lockfile *RiotClientLockfileInfo) *ValorantClient {
+func NewClient(lockfile *RiotClientLockfileInfo, baseUrl string) *ValorantClient {
 	return &ValorantClient{
 		lockfile: lockfile,
 		http: &http.Client{
@@ -32,14 +35,20 @@ func NewClient(lockfile *RiotClientLockfileInfo) *ValorantClient {
 				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 			},
 		},
+		baseUrl: baseUrl,
 	}
 }
 
-func (w *ValorantClient) Connect(ctx context.Context) {
-	w.connectToRiotWS(ctx)
+// connect to the local valorant client websocket
+func (w *ValorantClient) ConnectToWS(ctx context.Context) {
+	conn, err := w.connectToRiotWS(ctx)
+	if err != nil {
+		runtime.LogError(ctx, err.Error())
+	}
+	w.socket = conn
 }
 
-func (w *ValorantClient) connectToRiotWS(ctx context.Context) *websocket.Conn {
+func (w *ValorantClient) connectToRiotWS(ctx context.Context) (*websocket.Conn, error) {
 	ctx, cancel := context.WithTimeout(ctx, REQUEST_TIMEOUT)
 	defer cancel()
 
@@ -49,76 +58,38 @@ func (w *ValorantClient) connectToRiotWS(ctx context.Context) *websocket.Conn {
 		strconv.Itoa(w.lockfile.Port),
 	)
 
-	log.Printf("connecting to %v", url)
-	conn, resp, err := websocket.Dial(ctx, url, nil)
-
-	log.Printf("resp: \n\n %v+", resp)
-	log.Printf("conn: \n\n %v+", conn)
-
+	runtime.LogInfof(ctx, "connecting to %v", url)
+	conn, _, err := websocket.Dial(ctx, url, nil)
 	if err != nil {
-		panic(err)
+		runtime.LogError(ctx, err.Error())
+		return nil, err
 	}
 
-	// dialOptions := &websocket.DialOptions{
-	// 	HTTPHeader: headers,
-	// }
-
-	return conn
+	return conn, nil
 }
 
-// TODO: refactor request creation behind pkg
-func (w *ValorantClient) GetSession(ctx context.Context) {
-	ctx, cancel := context.WithTimeout(ctx, REQUEST_TIMEOUT)
-	defer cancel()
+func (c *ValorantClient) makeRequest(ctx context.Context, url, httpMethod string) ([]byte, error) {
+	ctx, cancelFunc := context.WithTimeout(ctx, REQUEST_TIMEOUT)
+	defer cancelFunc() // cancel based on timeout
 
-	url := fmt.Sprintf("https://127.0.0.1:%v/chat/v1/session", w.lockfile.Port)
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	req.SetBasicAuth("riot", w.lockfile.Password) // this is neat
+	req, err := http.NewRequestWithContext(ctx, httpMethod, url, nil)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	resp, err := w.http.Do(req)
+	req.SetBasicAuth("riot", c.lockfile.Password)
+
+	resp, err := c.http.Do(req)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	log.Printf("resp: \n\n %+v", string(body))
-}
-
-func (w *ValorantClient) GetHelp(ctx context.Context) {
-	ctx, cancel := context.WithTimeout(ctx, REQUEST_TIMEOUT)
-	defer cancel()
-
-	url := fmt.Sprintf("https://127.0.0.1:%v/help", w.lockfile.Port)
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	req.SetBasicAuth("riot", w.lockfile.Password) // this is neat
-	if err != nil {
-		panic(err)
-	}
-
-	resp, err := w.http.Do(req)
-	if err != nil {
-		panic(err)
-	}
-
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	log.Printf("resp: \n\n %+v", string(body))
-}
-
-func (w *ValorantClient) GetPresences(ctx context.Context) {
-	log.Printf("get presences")
+	return body, nil
 }

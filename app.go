@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	api "github.com/horrorsaur/LAVT/internal/backend/api/valorant"
@@ -40,12 +41,15 @@ func (a *App) startup(ctx context.Context) {
 	}
 
 	lockfile := <-watcher.Ch
-	client := api.NewClient(lockfile)
-	// client.Connect(ctx)
-	client.GetSession(ctx)
+	client := api.NewClient(lockfile, fmt.Sprintf("https://127.0.0.1:%v", lockfile.Port))
+	a.client = client
 }
 
 // Called after the frontend has been destroyed, just before the application terminates.
 func (a *App) shutdown(ctx context.Context) {
 	runtime.LogInfo(a.ctx, "Shutting down!")
+}
+
+func (a App) GetSessionInfo() (*api.SessionResponse, error) {
+	return a.client.GetSession(a.ctx)
 }
