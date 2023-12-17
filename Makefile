@@ -10,11 +10,11 @@ test:
 # builds based on current platform as set by GOOS/GOARCH etc
 .PHONY: build
 build:
-	wails build -s -debug
+	wails build -debug
 
 .PHONY: build-windows
 build-windows:
-	GOOS=windows wails build -platform windows/amd64 -clean -s -debug
+	GOOS=windows wails build -platform windows/amd64 -clean -debug
 
 # Wails CLI handles building for the 'run' command
 .PHONY: run
