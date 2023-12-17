@@ -46,6 +46,7 @@ func (e *LockfileReadDirectoryError) Error() string {
 func NewLockfileWatcher() (*LockfileWatcher, error) {
 	// get the users local cache directory
 	appDataDir, err := os.UserCacheDir()
+
 	if err != nil {
 		log.Printf("user cache dir err: %s", err)
 		return nil, unknownLocalCacheDirectory
@@ -169,6 +170,8 @@ func readLockfile(path string) (*RiotClientLockfileInfo, error) {
 	if len(lockfileData) != int(5) {
 		return nil, unexpectedLockfileData
 	}
+
+	log.Printf("lockfile data: %+v", lockfileData)
 
 	name := lockfileData[0]
 	PID, _ := strconv.Atoi(lockfileData[1])

@@ -5,16 +5,18 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"nhooyr.io/websocket"
+	"nhooyr.io/websocket/wsjson"
 )
 
 const REQUEST_TIMEOUT = 30 * time.Second
-const WEBSOCKET_TIMEOUT = 30 * time.Second
+const WEBSOCKET_TIMEOUT = 10 * time.Second
 
 type (
 	ValorantClient struct {
@@ -23,6 +25,7 @@ type (
 		socket   *websocket.Conn
 
 		baseUrl string
+		session SessionInfo
 	}
 )
 
@@ -40,31 +43,46 @@ func NewClient(lockfile *RiotClientLockfileInfo, baseUrl string) *ValorantClient
 }
 
 // connect to the local valorant client websocket
-func (w *ValorantClient) ConnectToWS(ctx context.Context) {
-	conn, err := w.connectToRiotWS(ctx)
+func (c *ValorantClient) ConnectToWS(ctx context.Context) {
+	conn, err := c.connectToRiotWS(ctx)
+	log.Printf("res: %+v", conn)
 	if err != nil {
 		runtime.LogError(ctx, err.Error())
 	}
-	w.socket = conn
+	c.socket = conn
+}
+
+func (c ValorantClient) SubscribeToAll(ctx context.Context) {
+	ctx, cancel := context.WithTimeout(ctx, WEBSOCKET_TIMEOUT)
+	defer cancel()
+
+	// [5, "OnJsonApiEvent"]
+	var msg = []interface{}{5, "OnJsonApiEvent"}
+	err := wsjson.Write(ctx, c.socket, msg)
+	if err != nil {
+		log.Print(err)
+	}
 }
 
 func (w *ValorantClient) connectToRiotWS(ctx context.Context) (*websocket.Conn, error) {
-	ctx, cancel := context.WithTimeout(ctx, REQUEST_TIMEOUT)
+	ctx, cancel := context.WithTimeout(ctx, WEBSOCKET_TIMEOUT)
 	defer cancel()
 
 	url := fmt.Sprintf(
-		"ws://riot:%s@localhost:%s/",
+		"wss://riot:%s@127.0.0.1:%s",
 		w.lockfile.Password,
 		strconv.Itoa(w.lockfile.Port),
 	)
 
-	runtime.LogInfof(ctx, "connecting to %v", url)
-	conn, _, err := websocket.Dial(ctx, url, nil)
+	opts := &websocket.DialOptions{HTTPClient: w.http}
+	log.Printf("WS attempting connection to %v...", url)
+	conn, _, err := websocket.Dial(ctx, url, opts)
 	if err != nil {
 		runtime.LogError(ctx, err.Error())
 		return nil, err
 	}
 
+	// todo: do something w/ close func since we typically defer it
 	return conn, nil
 }
 

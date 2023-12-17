@@ -4,13 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 type (
 	API struct {
 		lockfile *LockfileWatcher
+	}
+
+	// holds session info from Riot client
+	SessionInfo struct {
+		PID      string
+		PlayerId string
 	}
 
 	SessionResponse struct {
@@ -34,6 +38,9 @@ func (c *ValorantClient) GetSession(ctx context.Context) (*SessionResponse, erro
 		return nil, jsonErr
 	}
 
+	// cache session info on client
+	c.session.PlayerId = response.PlayerId
+
 	return &response, nil
 }
 
@@ -47,6 +54,11 @@ func (w *ValorantClient) GetHelp(ctx context.Context) ([]byte, error) {
 	return body, nil
 }
 
-func (w *ValorantClient) GetPresences(ctx context.Context) {
-	runtime.LogInfo(ctx, "get presences")
+func (w *ValorantClient) GetPresences(ctx context.Context) ([]byte, error) {
+	url := fmt.Sprintf("https://127.0.0.1:%v/chat/v4/presences", w.lockfile.Port)
+	body, err := w.makeRequest(ctx, url, "GET")
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
 }
