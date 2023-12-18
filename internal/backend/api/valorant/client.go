@@ -43,13 +43,14 @@ func NewClient(lockfile *RiotClientLockfileInfo, baseUrl string) *ValorantClient
 }
 
 // connect to the local valorant client websocket
-func (c *ValorantClient) ConnectToWS(ctx context.Context) {
+func (c *ValorantClient) ConnectToWS(ctx context.Context, done chan bool) {
 	conn, err := c.connectToRiotWS(ctx)
 	log.Printf("res: %+v", conn)
 	if err != nil {
 		runtime.LogError(ctx, err.Error())
 	}
 	c.socket = conn
+	done <- true
 }
 
 func (c ValorantClient) SubscribeToAll(ctx context.Context) {
@@ -82,9 +83,14 @@ func (w *ValorantClient) connectToRiotWS(ctx context.Context) (*websocket.Conn, 
 		return nil, err
 	}
 
-	// todo: do something w/ close func since we typically defer it
 	return conn, nil
 }
+
+// Receiving updates is a bit different.
+// The first 2 indexes of the array is the same as before,
+// 8 will be the opcode, the second item will be the name of the event and
+// the third item will be a JSON blob with 3 entries, data, eventType and uri.
+func (c ValorantClient) receiveMsg() {}
 
 func (c *ValorantClient) makeRequest(ctx context.Context, url, httpMethod string) ([]byte, error) {
 	ctx, cancelFunc := context.WithTimeout(ctx, REQUEST_TIMEOUT)

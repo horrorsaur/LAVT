@@ -146,7 +146,7 @@ func (w *LockfileWatcher) Watch(duration time.Duration) {
 
 					data, err := readLockfile(w.LockfilePath())
 					if err != nil {
-						panic(err)
+						log.Print(err)
 					}
 
 					log.Print("sent lockfile file data to channel")

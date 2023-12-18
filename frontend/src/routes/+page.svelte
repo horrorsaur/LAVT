@@ -1,13 +1,13 @@
 <script>
-  import { GetSessionInfo } from "$lib/wailsjs/go/main/App";
+  // import { GetSessionInfo } from "$lib/wailsjs/go/main/App";
 
-  function doGetSessionInfo() {
-    GetSessionInfo().then((result) => {
-      console.log(result)
-    });
-  }
+  // function doGetSessionInfo() {
+  //   GetSessionInfo().then((result) => {
+  //     console.log(result)
+  //   });
+  // }
 
-  doGetSessionInfo()
+  // doGetSessionInfo()
 </script>
 
 <div class="container h-full mx-auto flex justify-center items-center">
