@@ -40,9 +40,9 @@ func (a *App) startup(ctx context.Context) {
 		watcher.Watch(5000 * time.Millisecond) // every 5s
 	}
 
-	lockfile := <-watcher.Ch
-	client := api.NewClient(lockfile, fmt.Sprintf("https://127.0.0.1:%v", lockfile.Port))
-	a.client = client
+	if lockfile := <-watcher.Ch; lockfile != nil {
+		a.client = api.NewClient(lockfile, fmt.Sprintf("https://127.0.0.1:%v", lockfile.Port))
+	}
 }
 
 // Called after the frontend has been destroyed, just before the application terminates.

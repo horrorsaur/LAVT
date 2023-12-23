@@ -14,6 +14,7 @@ build:
 
 .PHONY: build-windows
 build-windows:
+	go generate
 	GOOS=windows wails build -platform windows/amd64 -clean -debug
 
 # Wails CLI handles building for the 'run' command

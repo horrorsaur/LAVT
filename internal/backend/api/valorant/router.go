@@ -1,12 +1,11 @@
 package valorant
 
 import (
-	"net/http"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+// GET requests are always first handled by the assets FS.
 func NewRouter() *chi.Mux {
 	r := chi.NewRouter()
 
@@ -14,9 +13,8 @@ func NewRouter() *chi.Mux {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("welcome"))
-	})
+	// r.Get("/", templ.Handler())
+	// components.Header("Less Annoying Valorant Tracker")).ServeHTTP
 
 	return r
 }

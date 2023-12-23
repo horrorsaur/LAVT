@@ -4,7 +4,7 @@ import (
 	"embed"
 	"net/http"
 
-	"github.com/horrorsaur/LAVT/internal/backend/api/valorant"
+	api "github.com/horrorsaur/LAVT/internal/backend/api/valorant"
 	"github.com/wailsapp/wails/v2"
 	wailsLogger "github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -15,7 +15,7 @@ import (
 
 // Embed static assets into binary go:embed
 //
-//go:embed all:frontend/dist
+//go:embed all:frontend/dist internal/templates
 var assets embed.FS
 
 //go:embed build/appicon.png
@@ -23,24 +23,20 @@ var icon []byte
 
 func main() {
 	app := NewApp()
-	router := valorant.NewRouter()
-
-	// Logging
-	fileLogger := wailsLogger.NewFileLogger("app.log")
-
+	router := api.NewRouter()
 	opts := &options.App{
 		Title:             "LAVT",
 		BackgroundColour:  options.NewRGBA(27, 27, 155, 0),
-		Width:             1920,
-		Height:            1080,
+		Width:             800, // 1920
+		Height:            600, // 1080
 		MinWidth:          1024,
 		MinHeight:         768,
 		Frameless:         false,
 		StartHidden:       false,
 		HideWindowOnClose: false,
-		WindowStartState:  options.Maximised,
+		WindowStartState:  options.Normal,
 		AlwaysOnTop:       true,
-		Logger:            fileLogger,
+		Logger:            wailsLogger.NewFileLogger("app.log"),
 		LogLevel:          wailsLogger.DEBUG,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
@@ -65,7 +61,6 @@ func main() {
 
 	err := wails.Run(opts)
 	if err != nil {
-		fileLogger.Error(err.Error())
 		panic(err)
 	}
 }

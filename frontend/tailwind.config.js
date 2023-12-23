@@ -2,7 +2,7 @@
 export default {
   content: [
     "./dist/index.html", // build output location
-    "../components/*.go", // templ
+    "../internal/templates/**/*.templ", // templ
     "./src/**/*.{html,js,ts,jsx,tsx}",
   ],
   theme: {
