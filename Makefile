@@ -1,3 +1,7 @@
+.PHONY: generate
+generate:
+	go generate ./...
+
 .PHONY: tidy
 tidy:
 	go fmt ./...
@@ -13,11 +17,10 @@ build:
 	wails build -debug
 
 .PHONY: build-windows
-build-windows:
-	go generate
+build-windows: generate
 	GOOS=windows wails build -platform windows/amd64 -clean -debug
 
 # Wails CLI handles building for the 'run' command
 .PHONY: run
-run:
+run: generate
 	./scripts/dev.sh

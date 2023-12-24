@@ -1,20 +1,19 @@
 package valorant
 
 import (
+	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/horrorsaur/LAVT/internal/templates/partials"
 )
 
 // GET requests are always first handled by the assets FS.
 func NewRouter() *chi.Mux {
 	r := chi.NewRouter()
-
-	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	// r.Get("/", templ.Handler())
-	// components.Header("Less Annoying Valorant Tracker")).ServeHTTP
+	r.Get("/session", templ.Handler(partials.GetSessionInfo()).ServeHTTP)
 
 	return r
 }
