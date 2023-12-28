@@ -1,4 +1,4 @@
-package valorant
+package local
 
 import (
 	"io"

@@ -1,4 +1,4 @@
-package valorant
+package local
 
 import (
 	"context"
@@ -16,21 +16,18 @@ import (
 )
 
 const REQUEST_TIMEOUT = 30 * time.Second
-const WEBSOCKET_TIMEOUT = 10 * time.Second
+const WEBSOCKET_TIMEOUT = 30 * time.Second
 
 type (
 	ValorantClient struct {
 		lockfile *RiotClientLockfileInfo
 		http     *http.Client
 		socket   *websocket.Conn
-
-		baseUrl string
-		session SessionInfo
 	}
 )
 
 // Returns a new RiotClient from reading the lockfile at LOCALAPPDIR
-func NewClient(lockfile *RiotClientLockfileInfo, baseUrl string) *ValorantClient {
+func NewClient(lockfile *RiotClientLockfileInfo) *ValorantClient {
 	return &ValorantClient{
 		lockfile: lockfile,
 		http: &http.Client{
@@ -38,31 +35,56 @@ func NewClient(lockfile *RiotClientLockfileInfo, baseUrl string) *ValorantClient
 				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 			},
 		},
-		baseUrl: baseUrl,
 	}
 }
 
 // connect to the local valorant client websocket
-func (c *ValorantClient) ConnectToWS(ctx context.Context, done chan bool) {
+func (c *ValorantClient) ConnectToWS(ctx context.Context) {
 	conn, err := c.connectToRiotWS(ctx)
-	log.Printf("res: %+v", conn)
 	if err != nil {
 		runtime.LogError(ctx, err.Error())
 	}
 	c.socket = conn
-	done <- true
 }
 
+func (c *ValorantClient) CloseWS(ctx context.Context) error {
+	runtime.LogInfof(ctx, "closing ws connection")
+	return c.socket.CloseNow()
+}
+
+// subscribes to OnJsonApiEvent
 func (c ValorantClient) SubscribeToAll(ctx context.Context) {
 	ctx, cancel := context.WithTimeout(ctx, WEBSOCKET_TIMEOUT)
 	defer cancel()
 
 	// [5, "OnJsonApiEvent"]
 	var msg = []interface{}{5, "OnJsonApiEvent"}
+	log.Printf("writing msg: %+v", msg)
 	err := wsjson.Write(ctx, c.socket, msg)
 	if err != nil {
 		log.Print(err)
+		runtime.LogError(ctx, err.Error())
 	}
+}
+
+// 8 will be the opcode, the second item will be the name of the event and
+// the third item will be a JSON blob with 3 entries: data, eventType and uri.
+func (c ValorantClient) ReceiveMsg(ctx context.Context) []byte {
+	typ, r, err := c.socket.Reader(ctx)
+	if err != nil {
+		log.Print(err)
+		runtime.LogError(ctx, err.Error())
+	}
+
+	log.Printf("got type: %+v", typ)
+
+	body, err := io.ReadAll(r)
+	if err != nil {
+		log.Print(err)
+		runtime.LogError(ctx, err.Error())
+	}
+
+	return body
 }
 
 func (w *ValorantClient) connectToRiotWS(ctx context.Context) (*websocket.Conn, error) {
@@ -76,22 +98,20 @@ func (w *ValorantClient) connectToRiotWS(ctx context.Context) (*websocket.Conn, 
 	)
 
 	opts := &websocket.DialOptions{HTTPClient: w.http}
-	log.Printf("WS attempting connection to %v...", url)
+	log.Printf("attempting WS connection to %v...", url)
 	conn, _, err := websocket.Dial(ctx, url, opts)
 	if err != nil {
+		log.Printf("got error on connection: %+v\n\n", err)
 		runtime.LogError(ctx, err.Error())
 		return nil, err
 	}
-
+	log.Print("connected!")
 	return conn, nil
 }
 
-// Receiving updates is a bit different.
-// The first 2 indexes of the array is the same as before,
-// 8 will be the opcode, the second item will be the name of the event and
-// the third item will be a JSON blob with 3 entries, data, eventType and uri.
-func (c ValorantClient) receiveMsg() {}
-
+// builds and makes a request to the valorant local client
+//
+// TODO: Add X-Riot-Entitlements-JWT
 func (c *ValorantClient) makeRequest(ctx context.Context, url, httpMethod string) ([]byte, error) {
 	ctx, cancelFunc := context.WithTimeout(ctx, REQUEST_TIMEOUT)
 	defer cancelFunc() // cancel based on timeout
