@@ -4,7 +4,6 @@ import (
 	"embed"
 	"net/http"
 
-	api "github.com/horrorsaur/LAVT/internal/backend/api/valorant"
 	"github.com/wailsapp/wails/v2"
 	wailsLogger "github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -23,7 +22,6 @@ var icon []byte
 
 func main() {
 	app := NewApp()
-	router := api.NewRouter()
 	opts := &options.App{
 		Title:             "LAVT",
 		BackgroundColour:  options.NewRGBA(27, 27, 155, 0),
@@ -41,8 +39,8 @@ func main() {
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 			Middleware: func(next http.Handler) http.Handler {
-				router.NotFound(next.ServeHTTP)
-				return router
+				app.router.NotFound(next.ServeHTTP)
+				return app.router
 			},
 		},
 		Windows: &windows.Options{

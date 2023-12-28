@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
+	"log"
 	"time"
 
-	api "github.com/horrorsaur/LAVT/internal/backend/api/valorant"
+	"github.com/go-chi/chi/v5"
+	api "github.com/horrorsaur/LAVT/internal/backend/api/local"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -14,17 +15,18 @@ type (
 	App struct {
 		ctx    context.Context
 		client *api.ValorantClient
+		router *chi.Mux
 	}
 )
 
 func NewApp() *App {
-	return &App{}
+	return &App{
+		router: api.NewRouter(),
+	}
 }
 
 // Called after the frontend has been created, but before index.html has been loaded.
 func (a *App) startup(ctx context.Context) {
-	a.ctx = ctx
-
 	// setup lockfile watcher
 	watcher, watcherErr := api.NewLockfileWatcher()
 	if watcherErr != nil {
@@ -41,15 +43,38 @@ func (a *App) startup(ctx context.Context) {
 	}
 
 	if lockfile := <-watcher.Ch; lockfile != nil {
-		a.client = api.NewClient(lockfile, fmt.Sprintf("https://127.0.0.1:%v", lockfile.Port))
+		a.client = api.NewClient(lockfile)
+
+		entitlements, err := a.client.GetEntitlementsToken(ctx)
+		if err != nil {
+			runtime.LogInfof(ctx, "error getting entitlements: %+v", err)
+			log.Print(err)
+		}
+
+		presences, err := a.client.GetPresences(ctx)
+		if err != nil {
+			runtime.LogInfof(ctx, "error getting presences: %+v", err)
+			log.Print(err)
+		}
+
+		// cache request data
+		ctx = context.WithValue(ctx, "entitlements", entitlements)
+		ctx = context.WithValue(ctx, "presences", presences)
 	}
+
+	a.ctx = ctx
+
+	log.Printf("entitlements: %+v\n\n\n", ctx.Value("entitlements"))
+	log.Printf("presences: %+v\n\n\n", ctx.Value("presences"))
 }
 
 // Called after the frontend has been destroyed, just before the application terminates.
 func (a *App) shutdown(ctx context.Context) {
-	runtime.LogInfo(a.ctx, "Shutting down!")
-}
+	runtime.LogInfo(ctx, "Shutting down...")
 
-func (a App) GetSessionInfo() (*api.SessionResponse, error) {
-	return a.client.GetSession(a.ctx)
+	err := a.client.CloseWS(ctx)
+	if err != nil {
+		runtime.LogErrorf(ctx, "error on WS shutdown: %+v", err.Error())
+	}
+	runtime.LogInfo(ctx, "closed WS connection")
 }
