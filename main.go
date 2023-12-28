@@ -12,7 +12,7 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 )
 
-// Embed static assets into binary go:embed
+// Embed static assets into binary
 //
 //go:embed all:frontend/dist internal/templates
 var assets embed.FS

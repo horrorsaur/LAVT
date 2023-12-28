@@ -1,15 +1,18 @@
 # lavt-frontend
 
-To install dependencies:
+the frontend uses `bun` as a runtime with `vite` to build the vanilla html/css/js
 
-```bash
-bun install
-```
+when the app is built, there are two cmds that get run in this frontend folder (see README.md):
 
-To run:
+- frontend:install
+- frontend:build
 
-```bash
-bun run index.ts
-```
+these commands take care of building the frontend to the `/dist` directory. which is then passed along to the `embed.FS` call in the main go package.
 
-This project was created using `bun init` in bun v1.0.18. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+everything else is handled by the go application.
+
+### tech stack
+
+- vanilla html/css/js
+- [tailwind](https://tailwindcss.com/)
+- [htmx](https://htmx.org/)
