@@ -4,27 +4,47 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 )
 
 type (
 	// general player info
 	SessionResponse struct {
-		Name     string `json:"name"`
+		GameName string `json:"game_name"`
+		GameTag  string `json:"game_tag"`
 		PID      string `json:"pid"`
 		PlayerId string `json:"puuid"`
+		Region   string `json:"region"`
 		State    string `json:"state"`
 	}
 
 	// credentials used for some endpoints
 	EntitlementResponse struct {
-		Token       string `json:"accessToken"`
-		Entitlement string `json:"token"`
+		AccessToken string `json:"accessToken"` // token
+		Token       string `json:"token"`       // entitlement
 	}
 
 	// friend data
 	PresencesResponse struct {
 		Presences []Presence
+	}
+
+	PreGameMatchResponse struct {
+		// https://valapidocs.techchrism.me/endpoint/pre-game-match
+		MatchID string `json:"MatchID"`
+		State   string `json:"State"`
+		ModeID  string `json:"ModeID"`
+
+		Players []struct {
+			Subject         string `json:"Subject"` // player uuid
+			TeamID          string `json:"TeamID"`
+			PlayerIdentitiy struct {
+				Subject          string `json:"Subject"` // player uuid
+				Incognito        bool   `json:"Incognito"`
+				HideAccountLevel bool   `json:"HideAccountLevel"`
+			} `json:"PlayerIdentity"`
+		} `json:"Players"`
+
+		MatchmakingData interface{} `json:"MatchmakingData"`
 	}
 )
 
@@ -51,6 +71,7 @@ func (c *ValorantClient) GetHelp(ctx context.Context) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return body, nil
 }
 
@@ -64,7 +85,6 @@ func (c *ValorantClient) GetPresences(ctx context.Context) (PresencesResponse, e
 	var d PresencesResponse
 	jsonErr := json.Unmarshal(body, &d)
 	if err != nil {
-		log.Print(jsonErr)
 		return d, jsonErr
 	}
 
@@ -81,8 +101,34 @@ func (c ValorantClient) GetEntitlementsToken(ctx context.Context) (EntitlementRe
 	var d EntitlementResponse
 	jsonErr := json.Unmarshal(body, &d)
 	if jsonErr != nil {
-		log.Print(jsonErr)
 		return d, jsonErr
 	}
 	return d, nil
+}
+
+func (c ValorantClient) GetPreGameMatchDetails(ctx context.Context, pregameId string) ([]byte, error) {
+	// s := ctx.Value("session").(SessionResponse)
+
+	// region, shard, pre_game_match_id
+	url := fmt.Sprintf(
+		"https://glz-%v-1.%v.a.pvp.net/pregame/v1/matches/%v",
+		// s.Region, // region
+		"na",
+		"na", // shard - hardcoding to na for now
+		pregameId,
+	)
+
+	body, err := c.makeRequest(ctx, url, "GET")
+	if err != nil {
+		return nil, err
+		// return PreGameMatchResponse{}, err
+	}
+
+	var d PreGameMatchResponse
+	jsonErr := json.Unmarshal(body, &d)
+	if jsonErr != nil {
+		return nil, jsonErr
+	}
+
+	return body, nil
 }
