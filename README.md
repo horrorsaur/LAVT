@@ -1,6 +1,6 @@
 # LAVT
 
-this application is built with [Wails](https://wails.io/docs/howdoesitwork), which is essentially a Go app with a webkit frontend.
+this application is built with [Wails](https://wails.io/docs/howdoesitwork), which is essentially a Go app with a webkit frontend (like electron)
 
 ### Background
 
@@ -9,11 +9,9 @@ ive tried the tracker stuff out there, but ads yadayada. this gave me a chance t
 cross-platform desktop application dev w/ golang (which is still relatively new to me)
 
 ### Getting started
-
-WIP
+WIP - still working on this thing
 
 ### LSP settings
-
 i set some local lsp settings so that my go env is set up correctly when swapping between platforms
 ```json
 {

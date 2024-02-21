@@ -30,7 +30,7 @@ func main() {
 		MinWidth:          1024,
 		MinHeight:         768,
 		Frameless:         false,
-		StartHidden:       false,
+		StartHidden:       true,
 		HideWindowOnClose: false,
 		WindowStartState:  options.Normal,
 		AlwaysOnTop:       true,
@@ -55,6 +55,7 @@ func main() {
 		},
 		OnStartup:  app.startup,
 		OnShutdown: app.shutdown,
+		OnDomReady: app.onDomReady,
 	}
 
 	err := wails.Run(opts)

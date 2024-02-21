@@ -7,7 +7,6 @@ import (
 )
 
 type (
-	// general player info
 	SessionResponse struct {
 		GameName string `json:"game_name"`
 		GameTag  string `json:"game_tag"`
@@ -17,19 +16,26 @@ type (
 		State    string `json:"state"`
 	}
 
-	// credentials used for some endpoints
 	EntitlementResponse struct {
 		AccessToken string `json:"accessToken"` // token
 		Token       string `json:"token"`       // entitlement
 	}
 
-	// friend data
+	Presence struct {
+		PID      string `json:"pid"`
+		Actor    string `json:"actor"`
+		GameName string `json:"game_name"`
+		GameTag  string `json:"game_tag"`
+		State    string `json:"state"`
+		Product  string `json:"product"`
+		Region   string `json:"region"`
+	}
+
 	PresencesResponse struct {
 		Presences []Presence
 	}
 
 	PreGameMatchResponse struct {
-		// https://valapidocs.techchrism.me/endpoint/pre-game-match
 		MatchID string `json:"MatchID"`
 		State   string `json:"State"`
 		ModeID  string `json:"ModeID"`
@@ -50,7 +56,7 @@ type (
 
 func (c *ValorantClient) GetSession(ctx context.Context) (SessionResponse, error) {
 	url := fmt.Sprintf("https://127.0.0.1:%v/chat/v1/session", c.lockfile.Port)
-	body, err := c.makeRequest(ctx, url, "GET")
+	body, err := c.handleRequest(ctx, "GET", url, true, false)
 	if err != nil {
 		return SessionResponse{}, err
 	}
@@ -67,7 +73,7 @@ func (c *ValorantClient) GetSession(ctx context.Context) (SessionResponse, error
 func (c *ValorantClient) GetHelp(ctx context.Context) ([]byte, error) {
 	url := fmt.Sprintf("https://127.0.0.1:%v/help", c.lockfile.Port)
 
-	body, err := c.makeRequest(ctx, url, "GET")
+	body, err := c.handleRequest(ctx, "GET", url, true, false)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +83,8 @@ func (c *ValorantClient) GetHelp(ctx context.Context) ([]byte, error) {
 
 func (c *ValorantClient) GetPresences(ctx context.Context) (PresencesResponse, error) {
 	url := fmt.Sprintf("https://127.0.0.1:%v/chat/v4/presences", c.lockfile.Port)
-	body, err := c.makeRequest(ctx, url, "GET")
+
+	body, err := c.handleRequest(ctx, "GET", url, true, false)
 	if err != nil {
 		return PresencesResponse{}, err
 	}
@@ -93,7 +100,7 @@ func (c *ValorantClient) GetPresences(ctx context.Context) (PresencesResponse, e
 
 func (c ValorantClient) GetEntitlementsToken(ctx context.Context) (EntitlementResponse, error) {
 	url := fmt.Sprintf("https://127.0.0.1:%v/entitlements/v1/token", c.lockfile.Port)
-	body, err := c.makeRequest(ctx, url, "GET")
+	body, err := c.handleRequest(ctx, "GET", url, true, false)
 	if err != nil {
 		return EntitlementResponse{}, err
 	}
@@ -106,29 +113,24 @@ func (c ValorantClient) GetEntitlementsToken(ctx context.Context) (EntitlementRe
 	return d, nil
 }
 
-func (c ValorantClient) GetPreGameMatchDetails(ctx context.Context, pregameId string) ([]byte, error) {
-	// s := ctx.Value("session").(SessionResponse)
-
-	// region, shard, pre_game_match_id
+func (c ValorantClient) GetPreGameMatchDetails(ctx context.Context, pregameId string) (PreGameMatchResponse, error) {
 	url := fmt.Sprintf(
 		"https://glz-%v-1.%v.a.pvp.net/pregame/v1/matches/%v",
-		// s.Region, // region
-		"na",
-		"na", // shard - hardcoding to na for now
-		pregameId,
-	)
+		"na",      // region
+		"na",      // shard
+		pregameId, // pregame match id
+	) // region/shard hardcoded for now
 
-	body, err := c.makeRequest(ctx, url, "GET")
+	body, err := c.handleRequest(ctx, "GET", url, false, true)
 	if err != nil {
-		return nil, err
-		// return PreGameMatchResponse{}, err
+		return PreGameMatchResponse{}, err
 	}
 
 	var d PreGameMatchResponse
 	jsonErr := json.Unmarshal(body, &d)
 	if jsonErr != nil {
-		return nil, jsonErr
+		return PreGameMatchResponse{}, jsonErr
 	}
 
-	return body, nil
+	return d, nil
 }

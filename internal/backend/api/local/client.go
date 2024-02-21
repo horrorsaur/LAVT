@@ -36,29 +36,27 @@ func NewClient(lockfile *RiotClientLockfileInfo) *ValorantClient {
 	}
 }
 
-// builds and makes a request to the valorant local client
-func (c *ValorantClient) makeRequest(ctx context.Context, url, httpMethod string) ([]byte, error) {
+// move auth headers over to some kind of config struct or variadic parameter
+func (c *ValorantClient) handleRequest(ctx context.Context, httpMethod, url string, includeBasicAuth bool, entitlementsHeader bool) ([]byte, error) {
 	ctx, cancelFunc := context.WithTimeout(ctx, REQUEST_TIMEOUT)
-	defer cancelFunc() // cancel based on timeout
+	defer cancelFunc()
 
 	req, err := http.NewRequestWithContext(ctx, httpMethod, url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	// auth
-	e, ok := ctx.Value("entitlements").(EntitlementResponse)
-	if ok {
-		log.Print("using entitlements response auth headers")
-		req.Header.Add("Authorization", "Bearer "+e.AccessToken)
-		req.Header.Add("X-Riot-Entitlements-JWT", e.Token)
-	} else {
-		log.Printf("using lockfile basic auth creds")
+	if includeBasicAuth {
 		req.SetBasicAuth("riot", c.lockfile.Password)
 	}
 
-	log.Printf("REQ: %+v\nHEADERS: %+v\n", req, req.Header)
+	if entitlementsHeader {
+		e := ctx.Value("entitlements").(EntitlementResponse)
+		req.Header.Add("X-Riot-Entitlements-JWT", e.Token)
+		req.Header.Add("Authorization", "Bearer "+e.AccessToken)
+	}
 
+	log.Printf("REQUEST: %+v\n", req)
 	resp, err := c.http.Do(req)
 	if err != nil {
 		return nil, err
@@ -71,6 +69,6 @@ func (c *ValorantClient) makeRequest(ctx context.Context, url, httpMethod string
 		return nil, err
 	}
 
-	log.Printf("RESP BODY: %+v\n", string(body))
+	log.Printf("RESPONSE: %+v\n", string(body))
 	return body, nil
 }

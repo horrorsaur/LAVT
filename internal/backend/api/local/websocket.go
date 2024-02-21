@@ -86,7 +86,7 @@ func (c *ValorantClient) ReceiveSocketMsgs(ctx context.Context) WSResponse {
 		return WSResponse{Opcode: -1}
 	}
 
-	log.Printf("ws msg: %+v\n", r)
+	// log.Printf("ws msg: %+v\n", r)
 	return r
 }
 
