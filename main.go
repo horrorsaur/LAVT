@@ -3,9 +3,10 @@ package main
 import (
 	"embed"
 	"net/http"
+	"os"
 
 	"github.com/wailsapp/wails/v2"
-	wailsLogger "github.com/wailsapp/wails/v2/pkg/logger"
+	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/linux"
@@ -25,8 +26,8 @@ func main() {
 	opts := &options.App{
 		Title:             "LAVT",
 		BackgroundColour:  options.NewRGBA(27, 27, 155, 0),
-		Width:             800, // 1920
-		Height:            600, // 1080
+		Width:             1920,
+		Height:            1080,
 		MinWidth:          1024,
 		MinHeight:         768,
 		Frameless:         false,
@@ -34,8 +35,8 @@ func main() {
 		HideWindowOnClose: false,
 		WindowStartState:  options.Normal,
 		AlwaysOnTop:       true,
-		Logger:            wailsLogger.NewFileLogger("app.log"),
-		LogLevel:          wailsLogger.DEBUG,
+		Logger:            logger.NewFileLogger(os.Getenv("DEFAULT_LOG_FILE_PATH")),
+		LogLevel:          logger.DEBUG,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 			Middleware: func(next http.Handler) http.Handler {

@@ -9,3 +9,4 @@ frontend/.npmrc
 .nlsp-settings
 .git
 app.log
+.env
