@@ -3,7 +3,6 @@ module github.com/horrorsaur/LAVT
 go 1.22.0
 
 require (
-	github.com/a-h/templ v0.2.598
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/mitchellh/go-ps v1.0.0
 	github.com/stretchr/testify v1.8.4

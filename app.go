@@ -60,12 +60,13 @@ func (a *App) onDomReady(ctx context.Context) {
 		runtime.LogErrorf(ctx, "error getting entitlements: %+v", err)
 	}
 
-	session, err := a.client.GetSession(ctx)
+	session, err := a.client.GetLocalSession(ctx)
 	if err != nil {
 		runtime.LogErrorf(ctx, "error getting presences: %+v", err)
 	}
 
-	ctx = context.WithValue(ctx, "entitlements", entitlements)
+	// save session data to context for now, i think this expires after a certain amount of time
+	// or if the client is closed (user needs to reauth)
 	ctx = context.WithValue(ctx, "session", session)
 
 	runtime.LogInfo(ctx, "connecting to riot websocket")
@@ -97,7 +98,7 @@ func (a *App) onDomReady(ctx context.Context) {
 					matchId := tmp[len(tmp)-1]
 					log.Printf("got match ID! %+v", matchId)
 					if matchId != "" {
-						resp, err := a.client.GetPreGameMatchDetails(ctx, matchId)
+						resp, err := a.client.GetPreGameMatchDetails(ctx, matchId, entitlements)
 						if err != nil {
 							log.Printf("error getting pregame match details: %+v\n", err)
 						}

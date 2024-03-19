@@ -1,13 +1,18 @@
 package local
 
+// Package local provides network IO with the local instance of the Riot Client running on the host PC
+// http is a standard HTTP transport
+// socket is a websocket transport
+
 import (
 	"context"
 	"crypto/tls"
 	"io"
-	"log"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"nhooyr.io/websocket"
 )
 
@@ -21,6 +26,14 @@ type (
 		socket   *websocket.Conn
 
 		registeredEvents []string
+	}
+
+	// General request data for the Valorant local APIs
+	Params struct {
+		ctx          context.Context
+		httpMethod   string
+		url          string
+		entitlements Entitlement
 	}
 )
 
@@ -36,27 +49,27 @@ func NewClient(lockfile *RiotClientLockfileInfo) *ValorantClient {
 	}
 }
 
-// move auth headers over to some kind of config struct or variadic parameter
-func (c *ValorantClient) handleRequest(ctx context.Context, httpMethod, url string, includeBasicAuth bool, entitlementsHeader bool) ([]byte, error) {
-	ctx, cancelFunc := context.WithTimeout(ctx, REQUEST_TIMEOUT)
+// Returns bytes from HTTP body
+func (c *ValorantClient) handleRequest(params Params) ([]byte, error) {
+	ctx, cancelFunc := context.WithTimeout(params.ctx, REQUEST_TIMEOUT)
 	defer cancelFunc()
 
-	req, err := http.NewRequestWithContext(ctx, httpMethod, url, nil)
+	req, err := http.NewRequestWithContext(ctx, params.httpMethod, params.url, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	if includeBasicAuth {
+	if addBasicAuth := strings.Contains(params.url, "127.0.0.1"); addBasicAuth {
+		runtime.LogDebug(ctx, "adding basic auth header")
 		req.SetBasicAuth("riot", c.lockfile.Password)
 	}
 
-	if entitlementsHeader {
-		e := ctx.Value("entitlements").(EntitlementResponse)
-		req.Header.Add("X-Riot-Entitlements-JWT", e.Token)
-		req.Header.Add("Authorization", "Bearer "+e.AccessToken)
+	if params.entitlements.AccessToken != "" && params.entitlements.Token != "" {
+		runtime.LogDebug(ctx, "adding X-Riot-Entitlements-JWT and Auth Header")
+		req.Header.Add("X-Riot-Entitlements-JWT", params.entitlements.Token)
+		req.Header.Add("Authorization", "Bearer "+params.entitlements.AccessToken)
 	}
 
-	log.Printf("REQUEST: %+v\n", req)
 	resp, err := c.http.Do(req)
 	if err != nil {
 		return nil, err
@@ -69,6 +82,6 @@ func (c *ValorantClient) handleRequest(ctx context.Context, httpMethod, url stri
 		return nil, err
 	}
 
-	log.Printf("RESPONSE: %+v\n", string(body))
+	runtime.LogDebugf(ctx, "RESPONSE: %+v\n", string(body))
 	return body, nil
 }

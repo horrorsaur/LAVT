@@ -7,7 +7,7 @@ import (
 )
 
 type (
-	SessionResponse struct {
+	LocalSession struct {
 		GameName string `json:"game_name"`
 		GameTag  string `json:"game_tag"`
 		PID      string `json:"pid"`
@@ -16,7 +16,7 @@ type (
 		State    string `json:"state"`
 	}
 
-	EntitlementResponse struct {
+	Entitlement struct {
 		AccessToken string `json:"accessToken"` // token
 		Token       string `json:"token"`       // entitlement
 	}
@@ -31,11 +31,9 @@ type (
 		Region   string `json:"region"`
 	}
 
-	PresencesResponse struct {
-		Presences []Presence
-	}
+	Presences []Presence
 
-	PreGameMatchResponse struct {
+	PreGameMatch struct {
 		MatchID string `json:"MatchID"`
 		State   string `json:"State"`
 		ModeID  string `json:"ModeID"`
@@ -54,14 +52,20 @@ type (
 	}
 )
 
-func (c *ValorantClient) GetSession(ctx context.Context) (SessionResponse, error) {
+func (c *ValorantClient) GetLocalSession(ctx context.Context) (LocalSession, error) {
 	url := fmt.Sprintf("https://127.0.0.1:%v/chat/v1/session", c.lockfile.Port)
-	body, err := c.handleRequest(ctx, "GET", url, true, false)
+	var response LocalSession
+
+	p := Params{
+		ctx:        ctx,
+		httpMethod: "GET",
+		url:        url,
+	}
+	body, err := c.handleRequest(p)
 	if err != nil {
-		return SessionResponse{}, err
+		return response, err
 	}
 
-	var response SessionResponse
 	jsonErr := json.Unmarshal(body, &response)
 	if jsonErr != nil {
 		return response, jsonErr
@@ -73,7 +77,12 @@ func (c *ValorantClient) GetSession(ctx context.Context) (SessionResponse, error
 func (c *ValorantClient) GetHelp(ctx context.Context) ([]byte, error) {
 	url := fmt.Sprintf("https://127.0.0.1:%v/help", c.lockfile.Port)
 
-	body, err := c.handleRequest(ctx, "GET", url, true, false)
+	p := Params{
+		ctx:        ctx,
+		httpMethod: "GET",
+		url:        url,
+	}
+	body, err := c.handleRequest(p)
 	if err != nil {
 		return nil, err
 	}
@@ -81,31 +90,42 @@ func (c *ValorantClient) GetHelp(ctx context.Context) ([]byte, error) {
 	return body, nil
 }
 
-func (c *ValorantClient) GetPresences(ctx context.Context) (PresencesResponse, error) {
+func (c *ValorantClient) GetPresences(ctx context.Context) (Presences, error) {
 	url := fmt.Sprintf("https://127.0.0.1:%v/chat/v4/presences", c.lockfile.Port)
+	var d Presences
 
-	body, err := c.handleRequest(ctx, "GET", url, true, false)
+	p := Params{
+		ctx:        ctx,
+		httpMethod: "GET",
+		url:        url,
+	}
+	body, err := c.handleRequest(p)
 	if err != nil {
-		return PresencesResponse{}, err
+		return d, err
 	}
 
-	var d PresencesResponse
 	jsonErr := json.Unmarshal(body, &d)
-	if err != nil {
+	if jsonErr != nil {
 		return d, jsonErr
 	}
 
 	return d, nil
 }
 
-func (c ValorantClient) GetEntitlementsToken(ctx context.Context) (EntitlementResponse, error) {
+func (c ValorantClient) GetEntitlementsToken(ctx context.Context) (Entitlement, error) {
 	url := fmt.Sprintf("https://127.0.0.1:%v/entitlements/v1/token", c.lockfile.Port)
-	body, err := c.handleRequest(ctx, "GET", url, true, false)
+	var d Entitlement
+
+	p := Params{
+		ctx:        ctx,
+		httpMethod: "GET",
+		url:        url,
+	}
+	body, err := c.handleRequest(p)
 	if err != nil {
-		return EntitlementResponse{}, err
+		return d, err
 	}
 
-	var d EntitlementResponse
 	jsonErr := json.Unmarshal(body, &d)
 	if jsonErr != nil {
 		return d, jsonErr
@@ -113,23 +133,29 @@ func (c ValorantClient) GetEntitlementsToken(ctx context.Context) (EntitlementRe
 	return d, nil
 }
 
-func (c ValorantClient) GetPreGameMatchDetails(ctx context.Context, pregameId string) (PreGameMatchResponse, error) {
+func (c ValorantClient) GetPreGameMatchDetails(ctx context.Context, pregameId string, entitlements Entitlement) (PreGameMatch, error) {
 	url := fmt.Sprintf(
 		"https://glz-%v-1.%v.a.pvp.net/pregame/v1/matches/%v",
 		"na",      // region
 		"na",      // shard
 		pregameId, // pregame match id
 	) // region/shard hardcoded for now
+	var d PreGameMatch
 
-	body, err := c.handleRequest(ctx, "GET", url, false, true)
+	p := Params{
+		ctx:          ctx,
+		httpMethod:   "GET",
+		url:          url,
+		entitlements: entitlements,
+	}
+	body, err := c.handleRequest(p)
 	if err != nil {
-		return PreGameMatchResponse{}, err
+		return d, err
 	}
 
-	var d PreGameMatchResponse
 	jsonErr := json.Unmarshal(body, &d)
 	if jsonErr != nil {
-		return PreGameMatchResponse{}, jsonErr
+		return d, jsonErr
 	}
 
 	return d, nil
