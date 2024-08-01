@@ -1,5 +1,7 @@
 # LAVT
 
+(WIP - but not actually in progress atm)
+
 this application is built with [Wails](https://wails.io/docs/howdoesitwork), which is essentially a Go app with a webkit frontend (like electron)
 
 ### Background
